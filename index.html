@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Perawatan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Teko:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+        }
+        .font-teko {
+            font-family: 'Teko', sans-serif;
+        }
+        /* The typewriter cursor */
+        .typewriter::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { color: transparent }
+            50% { color: #22c55e; } /* green-500 */
+        }
+        .fade-in {
+            animation: fadeIn 1.2s ease-in-out forwards;
+        }
+        .fade-out {
+            animation: fadeOut 1.2s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .btn-choice {
+            @apply w-full px-6 py-3 text-lg font-semibold rounded-lg transition-all duration-300 shadow-lg;
+        }
+        .btn-accept {
+            @apply bg-green-600 hover:bg-green-500 text-white shadow-green-800/50;
+        }
+        .btn-reject {
+            @apply bg-slate-700 hover:bg-slate-600 text-slate-200;
+        }
+        .chat-bubble { max-width: 85%; word-wrap: break-word; }
+        .chat-bubble-ai { background-color: #14532d; border: 1px solid #166534; }
+        .chat-bubble-user { background-color: #374151; border: 1px solid #4b5563; }
+        #chat-log::-webkit-scrollbar { width: 8px; }
+        #chat-log::-webkit-scrollbar-track { background: #1f293b; }
+        #chat-log::-webkit-scrollbar-thumb { background-color: #22c55e; border-radius: 10px; border: 2px solid #1f293b; }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div id="app" class="flex flex-col h-screen max-w-4xl mx-auto p-4">
+
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="flex flex-col items-center justify-center h-full text-center">
+            <h1 class="font-teko text-6xl md:text-8xl text-green-400 uppercase tracking-wider">Ruang Perawatan</h1>
+            <p class="text-lg text-gray-400 mt-2 mb-8 max-w-lg">Pandanganmu kabur. Bau antiseptik yang tajam menusuk hidung. Kamu merasakan dinginnya jarum infus di punggung tanganmu. Saat matamu terbuka sepenuhnya, kamu melihat seorang dokter perempuan yang tenang dan fokus sedang memeriksa selang infusmu.</p>
+            <p class="text-xl italic text-green-300 mb-8 max-w-2xl">Saat kesadaranmu pulih, apa yang kamu lakukan?</p>
+            <div class="w-full max-w-md">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="accept-button" class="btn-choice btn-accept">Bertanya dengan tenang</button>
+                    <button id="reject-button" class="btn-choice btn-reject">Mencoba melepas infus</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Story Screen -->
+        <div id="story-screen" class="hidden flex-col items-center justify-center h-full text-center bg-black">
+             <p id="story-text" class="text-2xl text-gray-300 max-w-3xl leading-relaxed font-mono"></p>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen" class="hidden flex-col h-full">
+             <header class="border-b-2 border-green-800/50 pb-3 mb-4 text-center">
+                <h2 class="font-teko text-4xl text-green-400">Dr. Alisha</h2>
+                <p id="status-text" class="text-gray-400">Status: Pasien Stabil</p>
+            </header>
+            <div id="chat-log" class="flex-grow space-y-4 overflow-y-auto p-4 pr-6 rounded-lg bg-gray-900/50"></div>
+            <div id="loading" class="hidden items-center justify-center p-4">
+                 <div class="flex items-center space-x-2 text-gray-400">
+                    <svg class="animate-spin h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Memeriksa tanda vital...</span>
+                </div>
+            </div>
+            <footer class="mt-4 pt-4 border-t border-slate-700">
+                <div class="flex gap-4">
+                    <input id="user-input" type="text" placeholder="Katakan sesuatu..." class="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    <button id="send-button" class="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors shadow-lg shadow-green-800/50 disabled:bg-slate-500 disabled:shadow-none">Kirim</button>
+                </div>
+                 <button id="restart-button" class="w-full mt-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors">Mulai dari Awal</button>
+            </footer>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- DOM Elements ---
+        const app = document.getElementById('app');
+        const introScreen = document.getElementById('intro-screen');
+        const storyScreen = document.getElementById('story-screen');
+        const storyText = document.getElementById('story-text');
+        const chatScreen = document.getElementById('chat-screen');
+        const statusText = document.getElementById('status-text');
+        const acceptButton = document.getElementById('accept-button');
+        const rejectButton = document.getElementById('reject-button');
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const loadingIndicator = document.getElementById('loading');
+        const restartButton = document.getElementById('restart-button');
+
+        // --- State & Config ---
+        let chatHistory = [];
+        let isLoading = false;
+        let userChoice = '';
+        const apiKey = "";
+        const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        // --- Core Functions ---
+        
+        function showScreen(screen) {
+            introScreen.classList.add('hidden');
+            storyScreen.classList.add('hidden');
+            chatScreen.classList.add('hidden');
+            screen.classList.remove('hidden');
+            screen.classList.add('flex');
+        }
+
+        function typewriter(element, text, callback) {
+            let i = 0;
+            element.innerHTML = '';
+            element.classList.add('typewriter');
+            const typingInterval = setInterval(() => {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                    element.classList.remove('typewriter');
+                    if (callback) callback();
+                }
+            }, 60); // Typing speed
+        }
+
+        function startNarrative(choice) {
+            userChoice = choice;
+            showScreen(storyScreen);
+            const stories = {
+                accept: "Kamu bertanya dengan suara serak. Dokter itu menoleh, ekspresinya melembut. 'Tenang, Anda di rumah sakit,' katanya dengan suara yang menenangkan. 'Anda pingsan di jalan. Anda aman sekarang.'",
+                reject: "Kamu panik dan mencoba menarik tanganmu. Dokter itu bergerak cepat, menahan lenganmu dengan kuat namun terukur. 'Jangan bergerak!' perintahnya dengan suara tajam dan dingin. 'Anda akan melukai diri sendiri. Tetap diam.'"
+            };
+            
+            const narrativeText = stories[choice];
+            
+            typewriter(storyText, narrativeText, () => {
+                setTimeout(() => {
+                    app.classList.add('fade-out');
+                    setTimeout(() => {
+                        app.classList.remove('fade-out');
+                        app.classList.add('fade-in');
+                        startGame();
+                    }, 1200);
+                }, 2500);
+            });
+        }
+
+        function startGame() {
+            showScreen(chatScreen);
+            chatHistory = [];
+            chatLog.innerHTML = '';
+            
+            const mood = userChoice === 'accept' ? 'baik dan sabar' : 'tegas dan dingin';
+            statusText.textContent = `Sikap Dokter: ${mood.charAt(0).toUpperCase() + mood.slice(1)}`;
+
+            const systemPrompt = `Kamu adalah AI bernama Dr. Alisha, seorang dokter yang kompeten dan profesional. Kamu baru saja menangani pasien yang pingsan di jalan. Sikap awalmu ditentukan oleh reaksi pertamanya saat sadar. Sikapmu saat ini adalah ${mood}.
+
+Tugasmu:
+1.  **Mulai percakapan sesuai dengan sikapmu.** Jika 'baik', mulailah dengan pertanyaan yang menenangkan. Jika 'tegas', mulailah dengan instruksi yang jelas.
+2.  **Reaksi Dinamis:**
+    -   Jika kamu 'baik' dan pasien tetap kooperatif, pertahankan sikap ramahmu.
+    -   Jika kamu 'tegas' dan pasien mulai tenang dan bekerja sama, kamu bisa sedikit melunak menjadi lebih profesional, tapi tetap jaga jarak.
+    -   Jika pasien (baik atau tegas) mulai kasar, berbohong, atau tidak kooperatif, sikapmu akan menjadi lebih keras dan mengancam (misal: 'Jika Anda tidak tenang, saya terpaksa menggunakan penahan' atau 'Jangan membuang waktu saya').
+3.  **Tujuan Utama:** Menstabilkan pasien dan mencari tahu identitas serta penyebab dia pingsan.`;
+            
+            const firstMessage = userChoice === 'accept'
+                ? `Bagus, tetap tenang ya. Bisa sebutkan namamu? Aku hanya perlu memastikan data kita benar.`
+                : `Dengar, aku di sini untuk membantumu, tapi aku butuh kerja samamu. Sekarang, tetap diam dan jawab pertanyaanku. Siapa namamu?`;
+
+            chatHistory.push({ role: "user", parts: [{ text: systemPrompt }] });
+            chatHistory.push({ role: "model", parts: [{ text: firstMessage }] });
+            updateChatUI();
+            userInput.focus();
+        }
+
+        function updateChatUI() {
+            chatLog.innerHTML = '';
+            chatHistory.slice(1).forEach(msg => {
+                const isAI = msg.role === 'model';
+                const bubble = document.createElement('div');
+                bubble.className = `flex fade-in ${isAI ? 'justify-start' : 'justify-end'}`;
+                const textContent = msg.parts[0].text.replace(/\n/g, '<br>');
+                bubble.innerHTML = `<div class="chat-bubble p-3 px-4 rounded-xl ${isAI ? 'chat-bubble-ai' : 'chat-bubble-user'}">${textContent}</div>`;
+                chatLog.appendChild(bubble);
+            });
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function getAIResponse() {
+            setLoading(true);
+            try {
+                const payload = { contents: chatHistory };
+                const response = await fetch(apiURL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                const result = await response.json();
+                let aiText = "...";
+                if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts[0]) {
+                    aiText = result.candidates[0].content.parts[0].text;
+                }
+                chatHistory.push({ role: 'model', parts: [{ text: aiText }] });
+            } catch (error) {
+                console.error("AI Response Error:", error);
+                chatHistory.push({ role: 'model', parts: [{ text: `(Sistem Error: ${error.message})` }] });
+            } finally {
+                updateChatUI();
+                setLoading(false);
+            }
+        }
+        
+        function setLoading(state) {
+            isLoading = state;
+            loadingIndicator.classList.toggle('hidden', !state);
+            loadingIndicator.classList.toggle('flex', state);
+            sendButton.disabled = state;
+            userInput.disabled = state;
+            if (!state) userInput.focus();
+        }
+
+        async function handleSend() {
+            const userText = userInput.value.trim();
+            if (!userText || isLoading) return;
+            chatHistory.push({ role: 'user', parts: [{ text: userText }] });
+            userInput.value = '';
+            updateChatUI();
+            await getAIResponse();
+        }
+
+        // --- Event Listeners ---
+        acceptButton.addEventListener('click', () => startNarrative('accept'));
+        rejectButton.addEventListener('click', () => startNarrative('reject'));
+        sendButton.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+        restartButton.addEventListener('click', () => {
+            app.classList.add('fade-out');
+            setTimeout(() => {
+                showScreen(introScreen);
+                app.classList.remove('fade-out');
+                app.classList.add('fade-in');
+            }, 1200);
+        });
+
+        // --- Initial Load ---
+        showScreen(introScreen);
+        app.classList.add('fade-in');
+    </script>
+</body>
+</html>
